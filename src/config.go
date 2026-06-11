@@ -1,0 +1,43 @@
+package main
+
+import (
+	"os"
+	"strconv"
+)
+
+type Config struct {
+	Port         string
+	StoragePath  string
+	MaxFileSize  int64
+	MaxTotalSize int64
+	BaseURL      string
+}
+
+func loadConfig() Config {
+	return Config{
+		Port:         env("PORT", ":8080"),
+		StoragePath:  env("STORAGE_PATH", "./data"),
+		MaxFileSize:  envInt("MAX_FILE_SIZE", 1073741824),
+		MaxTotalSize: envInt("MAX_TOTAL_SIZE", 21474836481),
+		BaseURL:      env("BASE_URL", "http://localhost:8080"),
+	}
+}
+
+func env(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
+func envInt(key string, fallback int64) int64 {
+	v := os.Getenv(key)
+	if v == "" {
+		return fallback
+	}
+	n, err := strconv.ParseInt(v, 10, 64)
+	if err != nil {
+		return fallback
+	}
+	return n
+}
