@@ -19,11 +19,11 @@ func loadConfig() Config {
 	return Config{
 		Port:         env("PORT", ":8080"),
 		StoragePath:  env("STORAGE_PATH", "../data"),
-		MaxFileSize:  envInt("MAX_FILE_SIZE", 1073741824),
-		MaxTotalSize: envInt("MAX_TOTAL_SIZE", 21474836481),
+		MaxFileSize:  envInt("MAX_FILE_SIZE", 10737418240),
+		MaxTotalSize: envInt("MAX_TOTAL_SIZE", 10737418240),
 		BaseURL:      env("BASE_URL", "http://localhost:8080"),
 		MaxUploads:   int(envInt("MAX_UPLOADS", 1)),
-		UploadRate:   envInt("UPLOAD_RATE", 104857),
+		UploadRate:   envInt("UPLOAD_RATE", 0),
 	}
 }
 

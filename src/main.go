@@ -27,6 +27,16 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
+	// serve static assets (fonts, etc)
+	mux.HandleFunc("GET /fonts/", func(w http.ResponseWriter, r *http.Request) {
+		data, err := static.ReadFile("static" + r.URL.Path)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "font/woff2")
+		w.Write(data)
+	})
 	// take a file to upload to bin
 	mux.HandleFunc("POST /upload", handleUpload)
 	// take an id to fetch a file from the server
@@ -77,7 +87,7 @@ func handleUpload(
 
 	r.Body = http.MaxBytesReader(w, r.Body, cfg.MaxFileSize)
 
-	temp, err := os.CreateTemp("", "b1n-*")
+	temp, err := os.CreateTemp(cfg.StoragePath, "_*")
 	if err != nil {
 		http.Error(w, "server error", http.StatusInternalServerError)
 		return
@@ -104,6 +114,11 @@ func handleDownload(
 	r *http.Request,
 ) {
 	id := r.PathValue("id")
+	// ignore temp files which are all prefixed with an underscore
+	if len(id) > 0 && id[0] == '_' {
+		http.NotFound(w, r)
+		return
+	}
 	// get the full path of the file on the server
 	path := filepath.Join(cfg.StoragePath, id)
 

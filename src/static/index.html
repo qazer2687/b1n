@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <title>b1n</title>
         <style>
+            @font-face {
+                font-family: 'Share Tech Mono';
+                src: url('/fonts/ShareTechMono.woff2') format('woff2');
+            }
             * {
                 margin: 0;
                 padding: 0;
@@ -13,7 +17,7 @@
             body {
                 background: #000;
                 color: #fff;
-                font-family: monospace;
+                font-family: 'Share Tech Mono', monospace;
                 height: 100vh;
                 overflow: hidden;
             }
@@ -150,7 +154,7 @@
                 x.upload.onprogress = (e) => {
                     if (e.lengthComputable) {
                         b.style.width = (e.loaded / e.total) * 100 + "%";
-                        st.style.display = "";
+                        st.style.display = "block";
                         let n = Date.now(),
                             sp = la ? (e.loaded - la) / ((n - tm) / 1000) : 0;
                         la = e.loaded;
