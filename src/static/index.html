@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <title>b1n</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background: #000;
+                color: #fff;
+                font-family: monospace;
+                height: 100vh;
+                overflow: hidden;
+            }
+            #drop {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            #drop svg {
+                width: 48px;
+                height: 48px;
+            }
+            #bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 4px;
+                background: #fff;
+                width: 0;
+            }
+            #st {
+                position: fixed;
+                top: 12px;
+                left: 12px;
+                font-size: 14px;
+                display: none;
+            }
+            #dn {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                display: none;
+            }
+            #dn a {
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="drop">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                <rect x="0" y="0" width="16" height="1" fill="#000000"/>
+                <rect x="0" y="1" width="16" height="1" fill="#000000"/>
+                <rect x="0" y="2" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="2" width="2" height="1" fill="#ffffff"/>
+                <rect x="4" y="2" width="1" height="1" fill="#000000"/>
+                <rect x="5" y="2" width="6" height="1" fill="#ffffff"/>
+                <rect x="11" y="2" width="1" height="1" fill="#000000"/>
+                <rect x="12" y="2" width="2" height="1" fill="#ffffff"/>
+                <rect x="14" y="2" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="3" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="3" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="3" width="10" height="1" fill="#000000"/>
+                <rect x="13" y="3" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="3" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="4" width="16" height="1" fill="#000000"/>
+                <rect x="0" y="5" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="5" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="5" width="10" height="1" fill="#000000"/>
+                <rect x="13" y="5" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="5" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="6" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="6" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="6" width="4" height="1" fill="#000000"/>
+                <rect x="7" y="6" width="2" height="1" fill="#ffffff"/>
+                <rect x="9" y="6" width="4" height="1" fill="#000000"/>
+                <rect x="13" y="6" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="6" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="7" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="7" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="7" width="3" height="1" fill="#000000"/>
+                <rect x="6" y="7" width="4" height="1" fill="#ffffff"/>
+                <rect x="10" y="7" width="3" height="1" fill="#000000"/>
+                <rect x="13" y="7" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="7" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="8" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="8" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="8" width="3" height="1" fill="#000000"/>
+                <rect x="6" y="8" width="4" height="1" fill="#ffffff"/>
+                <rect x="10" y="8" width="3" height="1" fill="#000000"/>
+                <rect x="13" y="8" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="8" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="9" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="9" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="9" width="4" height="1" fill="#000000"/>
+                <rect x="7" y="9" width="2" height="1" fill="#ffffff"/>
+                <rect x="9" y="9" width="4" height="1" fill="#000000"/>
+                <rect x="13" y="9" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="9" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="10" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="10" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="10" width="10" height="1" fill="#000000"/>
+                <rect x="13" y="10" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="10" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="11" width="16" height="1" fill="#000000"/>
+                <rect x="0" y="12" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="12" width="1" height="1" fill="#ffffff"/>
+                <rect x="3" y="12" width="10" height="1" fill="#000000"/>
+                <rect x="13" y="12" width="1" height="1" fill="#ffffff"/>
+                <rect x="14" y="12" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="13" width="2" height="1" fill="#000000"/>
+                <rect x="2" y="13" width="2" height="1" fill="#ffffff"/>
+                <rect x="4" y="13" width="1" height="1" fill="#000000"/>
+                <rect x="5" y="13" width="6" height="1" fill="#ffffff"/>
+                <rect x="11" y="13" width="1" height="1" fill="#000000"/>
+                <rect x="12" y="13" width="2" height="1" fill="#ffffff"/>
+                <rect x="14" y="13" width="2" height="1" fill="#000000"/>
+                <rect x="0" y="14" width="16" height="1" fill="#000000"/>
+                <rect x="0" y="15" width="16" height="1" fill="#000000"/>
+            </svg>
+        </div>
+        <div id="bar"></div>
+        <div id="st"></div>
+        <div id="dn"><a id="lnk" href="#"></a></div>
+        <script>
+            let b = document.getElementById("bar"),
+                st = document.getElementById("st"),
+                dn = document.getElementById("dn"),
+                l = document.getElementById("lnk"),
+                dr = document.getElementById("drop"),
+                la = 0,
+                tm = 0,
+                done = false;
+            function up(f) {
+                if (!f || done) return;
+                let x = new XMLHttpRequest();
+                x.open("POST", "/upload");
+                x.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        b.style.width = (e.loaded / e.total) * 100 + "%";
+                        st.style.display = "";
+                        let n = Date.now(),
+                            sp = la ? (e.loaded - la) / ((n - tm) / 1000) : 0;
+                        la = e.loaded;
+                        tm = n;
+                        let F = (b) =>
+                            b >= 1e9
+                                ? (b / 1e9).toFixed(1) + "GB"
+                                : b >= 1e6
+                                  ? (b / 1e6).toFixed(1) + "MB"
+                                  : b >= 1e3
+                                    ? (b / 1e3).toFixed(1) + "KB"
+                                    : b + "B";
+                        st.textContent =
+                            F(e.loaded) +
+                            " / " +
+                            F(e.total) +
+                            " - " +
+                            F(sp) +
+                            "/s";
+                    }
+                };
+                x.onload = () => {
+                    done = true;
+                    dr.style.display = "none";
+                    b.style.width = "0";
+                    st.style.display = "none";
+                    l.href = l.textContent = window.location + x.responseText;
+                    dn.style.display = "block";
+                };
+                dr.style.display = "none";
+                x.send(f);
+            }
+            document.addEventListener("dragover", (e) => e.preventDefault());
+            document.addEventListener("drop", (e) => {
+                e.preventDefault();
+                if (done) return;
+                up(e.dataTransfer.files[0]);
+            });
+            document.addEventListener("click", () => {
+                if (done) return;
+                let i = document.createElement("input");
+                i.type = "file";
+                i.onchange = () => up(i.files[0]);
+                i.click();
+            });
+        </script>
+    </body>
+</html>

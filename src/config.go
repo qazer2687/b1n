@@ -11,15 +11,19 @@ type Config struct {
 	MaxFileSize  int64
 	MaxTotalSize int64
 	BaseURL      string
+	MaxUploads   int
+	UploadRate   int64
 }
 
 func loadConfig() Config {
 	return Config{
 		Port:         env("PORT", ":8080"),
-		StoragePath:  env("STORAGE_PATH", "./data"),
+		StoragePath:  env("STORAGE_PATH", "../data"),
 		MaxFileSize:  envInt("MAX_FILE_SIZE", 1073741824),
 		MaxTotalSize: envInt("MAX_TOTAL_SIZE", 21474836481),
 		BaseURL:      env("BASE_URL", "http://localhost:8080"),
+		MaxUploads:   int(envInt("MAX_UPLOADS", 1)),
+		UploadRate:   envInt("UPLOAD_RATE", 104857),
 	}
 }
 
