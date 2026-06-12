@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -15,10 +15,10 @@ type Config struct {
 	UploadRate   int64
 }
 
-func loadConfig() Config {
+func Load() Config {
 	return Config{
 		Port:         env("PORT", ":8080"),
-		StoragePath:  env("STORAGE_PATH", "../data"),
+		StoragePath:  env("STORAGE_PATH", "./data"),
 		MaxFileSize:  envInt("MAX_FILE_SIZE", 10737418240),
 		MaxTotalSize: envInt("MAX_TOTAL_SIZE", 10737418240),
 		BaseURL:      env("BASE_URL", "http://localhost:8080"),
