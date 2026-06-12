@@ -34,6 +34,24 @@ func main() {
 		w.Header().Set("Content-Type", "font/woff2")
 		w.Write(data)
 	})
+	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
+	    data, err := static.ReadFile("static/style.css")
+	    if err != nil {
+	        http.NotFound(w, r)
+	        return
+	    }
+	    w.Header().Set("Content-Type", "text/css")
+	    w.Write(data)
+	})
+	mux.HandleFunc("GET /script.js", func(w http.ResponseWriter, r *http.Request) {
+	    data, err := static.ReadFile("static/script.js")
+	    if err != nil {
+	        http.NotFound(w, r)
+	        return
+	    }
+	    w.Header().Set("Content-Type", "application/javascript")
+	    w.Write(data)
+	})
 	// take a file to upload to bin
 	mux.HandleFunc("POST /upload", h.HandleUpload)
 	// take an id to fetch a file from the server
