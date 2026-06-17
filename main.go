@@ -45,6 +45,8 @@ func main() {
 	mux.HandleFunc("POST /upload", h.HandleUpload)
 	// take an id to fetch a file from the server
 	mux.HandleFunc("GET /{id}", h.HandleDownload)
+	// serve raw file content for embed video playback
+	mux.HandleFunc("GET /{id}/raw", h.HandleRaw)
 
 	// start the http server
 	fmt.Printf("[INFO] server starting on %s\n", cfg.Port)
