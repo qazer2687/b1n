@@ -4,6 +4,7 @@ import (
     "embed"
     "fmt"
     "io/fs"
+    "mime"
     "net/http"
     "os"
 
@@ -17,6 +18,12 @@ import (
 var static embed.FS
 
 func main() {
+	// register MIME types for embedded static files
+	// (Alpine Linux lacks /etc/mime.types, so http.FileServer
+	//  can't derive these automatically)
+	mime.AddExtensionType(".svg", "image/svg+xml")
+	mime.AddExtensionType(".woff2", "font/woff2")
+
 	// load configuration
 	cfg := config.Load()
     h := handler.New(&cfg, static)
