@@ -3,6 +3,7 @@ let b = document.getElementById("bar"),
     dn = document.getElementById("dn"),
     l = document.getElementById("lnk"),
     dr = document.getElementById("drop"),
+    bk = document.getElementById("back"),
     la = 0,
     tm = 0,
     done = false;
@@ -37,11 +38,23 @@ function up(f) {
         st.style.display = "none";
         l.href = l.textContent = window.location + x.responseText;
         dn.style.display = "block";
+        bk.style.display = "block";
     };
     dr.style.display = "none";
     x.send(f);
 }
 
+bk.addEventListener("click", (e) => {
+    e.stopPropagation();
+    done = false;
+    dr.style.display = "flex";
+    dn.style.display = "none";
+    bk.style.display = "none";
+    b.style.width = "0";
+    st.style.display = "none";
+    la = 0;
+    tm = 0;
+});
 document.addEventListener("dragover", (e) => e.preventDefault());
 document.addEventListener("drop", (e) => {
     e.preventDefault();

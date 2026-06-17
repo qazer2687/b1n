@@ -58,6 +58,20 @@ body {
 #dn a {
     color: #fff;
 }
+#back {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    display: none;
+    cursor: pointer;
+    z-index: 10;
+}
+#back img {
+    display: block;
+    height: 40px;
+    width: auto;
+    background: #fff;
+}
 #logo {
     position: fixed;
     bottom: 12px;
