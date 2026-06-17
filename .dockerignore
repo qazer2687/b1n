@@ -1,0 +1,7 @@
+.git
+data
+.direnv
+.envrc
+shell.nix
+compose.yaml
+.gitignore

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/qazer2687/bin/internal/config"
@@ -17,6 +18,7 @@ import (
 type Handler struct {
 	cfg       *config.Config
 	uploadSem chan struct{}
+	totalMu   sync.Mutex
 	static    embed.FS
 }
 
@@ -78,8 +80,45 @@ func (h *Handler) HandleUpload(
 		return
 	}
 	id := hex.EncodeToString(hash.Sum(nil))
-	os.Rename(temp.Name(), filepath.Join(h.cfg.StoragePath, id))
+	// check total storage before committing the file
+	if h.cfg.MaxTotalSize > 0 {
+		h.totalMu.Lock()
+		total, err := dirSize(h.cfg.StoragePath)
+		if err != nil {
+			h.totalMu.Unlock()
+			os.Remove(temp.Name())
+			http.Error(w, "server error", http.StatusInternalServerError)
+			return
+		}
+		if total > h.cfg.MaxTotalSize {
+			os.Remove(temp.Name())
+			h.totalMu.Unlock()
+			http.Error(w, "storage full", http.StatusInsufficientStorage)
+			return
+		}
+		os.Rename(temp.Name(), filepath.Join(h.cfg.StoragePath, id))
+		h.totalMu.Unlock()
+	} else {
+		os.Rename(temp.Name(), filepath.Join(h.cfg.StoragePath, id))
+	}
 	fmt.Fprint(w, id)
+}
+
+// sum up the size of all files in a directory
+func dirSize(path string) (int64, error) {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return 0, err
+	}
+	var total int64
+	for _, e := range entries {
+		info, err := e.Info()
+		if err != nil {
+			continue
+		}
+		total += info.Size()
+	}
+	return total, nil
 }
 
 func (h *Handler) HandleDownload(

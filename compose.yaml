@@ -1,0 +1,14 @@
+services:
+  bin:
+    container_name: bin
+    build: .
+    environment:
+      - PORT=:8080
+      - STORAGE_PATH=./data
+      - MAX_FILE_SIZE=10737418240
+      - MAX_TOTAL_SIZE=10737418240
+      - BASE_URL=http://localhost:8080
+      - MAX_UPLOADS=1
+      - UPLOAD_RATE=0
+    ports:
+      - "8080:8080"
