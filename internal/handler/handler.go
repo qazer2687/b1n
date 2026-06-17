@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qazer2687/bin/internal/config"
+	"github.com/qazer2687/b1n/internal/config"
 )
 
 type Handler struct {

@@ -19,16 +19,16 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary
-RUN go build -o /app .
+RUN go build -o /b1n .
 
 # Final lightweight stage
 FROM alpine:3.21 AS final
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app /bin/app
+COPY --from=builder /b1n /bin/b1n
 
 # Expose the application's port
 EXPOSE 8080
 
 # Run the application
-CMD ["bin/app"]
+CMD ["bin/b1n"]

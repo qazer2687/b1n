@@ -1,6 +1,6 @@
 services:
-  bin:
-    container_name: bin
+  b1n:
+    container_name: b1n
     build: .
     environment:
       - PORT=:8080

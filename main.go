@@ -6,8 +6,8 @@ import (
     "net/http"
     "os"
 
-    "github.com/qazer2687/bin/internal/config"
-    "github.com/qazer2687/bin/internal/handler"
+    "github.com/qazer2687/b1n/internal/config"
+    "github.com/qazer2687/b1n/internal/handler"
 )
 
 // declare a variable "static" that holds all files under the src/static director at compile time
@@ -52,7 +52,7 @@ func main() {
 	    w.Header().Set("Content-Type", "application/javascript")
 	    w.Write(data)
 	})
-	// take a file to upload to bin
+	// take a file to upload to b1n
 	mux.HandleFunc("POST /upload", h.HandleUpload)
 	// take an id to fetch a file from the server
 	mux.HandleFunc("GET /{id}", h.HandleDownload)
