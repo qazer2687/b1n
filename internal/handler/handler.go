@@ -165,8 +165,8 @@ func (h *Handler) HandleDownload(
 		http.NotFound(w, r)
 		return
 	}
-	// serve rich embed to social media crawlers
-	if isCrawler(r.UserAgent()) {
+	// serve rich embed to social media crawlers (unless they're fetching the raw video)
+	if r.URL.Query().Get("raw") == "" && isCrawler(r.UserAgent()) {
 		buf := make([]byte, 512)
 		n, _ := file.Read(buf)
 		ct := http.DetectContentType(buf[:n])
@@ -200,6 +200,7 @@ func isCrawler(ua string) bool {
 func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	url := baseURL + "/" + id
+	videoURL := url + "?raw"
 	fmt.Fprintf(w, `<!doctype html>
 <html>
 <head>
@@ -209,10 +210,14 @@ func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType
 <meta property="og:type" content="video.other">
 <meta property="og:url" content="%s">
 <meta property="og:video" content="%s">
+<meta property="og:video:secure_url" content="%s">
 <meta property="og:video:type" content="%s">
+<meta property="og:video:width" content="640">
+<meta property="og:video:height" content="360">
 <meta name="twitter:card" content="player">
+<meta name="twitter:player" content="%s">
 <meta http-equiv="refresh" content="0;url=%s">
 </head>
 <body></body>
-</html>`, url, url, contentType, url)
+</html>`, url, videoURL, videoURL, contentType, videoURL, url)
 }
