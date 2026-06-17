@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -165,96 +164,5 @@ func (h *Handler) HandleDownload(
 		http.NotFound(w, r)
 		return
 	}
-	// serve rich embed to social media crawlers
-	if isCrawler(r.UserAgent()) {
-		buf := make([]byte, 512)
-		n, _ := file.Read(buf)
-		ct := http.DetectContentType(buf[:n])
-		if strings.HasPrefix(ct, "video/") {
-			serveEmbed(w, r, id, h.cfg.BaseURL, ct)
-			return
-		}
-	}
-
 	http.ServeContent(w, r, id, stat.ModTime(), file)
-}
-
-func (h *Handler) HandleRaw(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-	id := r.PathValue("id")
-	if len(id) != 64 {
-		http.NotFound(w, r)
-		return
-	}
-	for _, c := range id {
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
-			http.NotFound(w, r)
-			return
-		}
-	}
-	if len(id) > 0 && id[0] == '_' {
-		http.NotFound(w, r)
-		return
-	}
-	path := filepath.Join(h.cfg.StoragePath, id)
-	file, err := os.Open(path)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	defer file.Close()
-	stat, err := file.Stat()
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	http.ServeContent(w, r, id, stat.ModTime(), file)
-}
-
-// check if the user agent is a known social media crawler
-func isCrawler(ua string) bool {
-	if ua == "" {
-		return false
-	}
-	ua = strings.ToLower(ua)
-	for _, c := range []string{
-		"discordbot", "twitterbot", "facebookexternalhit",
-		"telegrambot", "slack", "slack-imgproxy",
-	} {
-		if strings.Contains(ua, c) {
-			return true
-		}
-	}
-	return false
-}
-
-// render og meta tags and twitter card for rich link previews
-func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType string) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	url := baseURL + "/" + id
-	videoURL := url + "/raw"
-	fmt.Fprintf(w, `<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta property="og:site_name" content="b1n">
-<meta property="og:title" content="video @ b1n">
-<meta property="og:type" content="video.other">
-<meta property="og:url" content="%s">
-<meta property="og:video" content="%s">
-<meta property="og:video:secure_url" content="%s">
-<meta property="og:video:type" content="%s">
-<meta property="og:video:width" content="640">
-<meta property="og:video:height" content="360">
-<meta name="twitter:card" content="player">
-<meta name="twitter:player:stream" content="%s">
-<meta name="twitter:player:stream:content_type" content="%s">
-<meta name="twitter:player:width" content="640">
-<meta name="twitter:player:height" content="360">
-<meta http-equiv="refresh" content="0;url=%s">
-</head>
-<body></body>
-</html>`, url, videoURL, videoURL, contentType, videoURL, contentType, url)
 }
