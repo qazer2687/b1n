@@ -165,8 +165,8 @@ func (h *Handler) HandleDownload(
 		http.NotFound(w, r)
 		return
 	}
-	// serve rich embed to social media crawlers (unless they're fetching the raw video)
-	if r.URL.Query().Get("raw") == "" && isCrawler(r.UserAgent()) {
+	// serve rich embed to social media crawlers
+	if isCrawler(r.UserAgent()) {
 		buf := make([]byte, 512)
 		n, _ := file.Read(buf)
 		ct := http.DetectContentType(buf[:n])
@@ -176,6 +176,40 @@ func (h *Handler) HandleDownload(
 		}
 	}
 
+	http.ServeContent(w, r, id, stat.ModTime(), file)
+}
+
+func (h *Handler) HandleRaw(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id := r.PathValue("id")
+	if len(id) != 64 {
+		http.NotFound(w, r)
+		return
+	}
+	for _, c := range id {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+			http.NotFound(w, r)
+			return
+		}
+	}
+	if len(id) > 0 && id[0] == '_' {
+		http.NotFound(w, r)
+		return
+	}
+	path := filepath.Join(h.cfg.StoragePath, id)
+	file, err := os.Open(path)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	defer file.Close()
+	stat, err := file.Stat()
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
 	http.ServeContent(w, r, id, stat.ModTime(), file)
 }
 
@@ -200,7 +234,7 @@ func isCrawler(ua string) bool {
 func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	url := baseURL + "/" + id
-	videoURL := url + "?raw"
+	videoURL := url + "/raw"
 	fmt.Fprintf(w, `<!doctype html>
 <html>
 <head>
