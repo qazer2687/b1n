@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -158,5 +159,52 @@ func (h *Handler) HandleDownload(
 		http.NotFound(w, r)
 		return
 	}
+	// serve rich embed to social media crawlers
+	if isCrawler(r.UserAgent()) {
+		buf := make([]byte, 512)
+		n, _ := file.Read(buf)
+		ct := http.DetectContentType(buf[:n])
+		if strings.HasPrefix(ct, "video/") {
+			serveEmbed(w, r, id, h.cfg.BaseURL, ct)
+			return
+		}
+	}
+
 	http.ServeContent(w, r, id, stat.ModTime(), file)
+}
+
+func isCrawler(ua string) bool {
+	if ua == "" {
+		return false
+	}
+	ua = strings.ToLower(ua)
+	for _, c := range []string{
+		"discordbot", "twitterbot", "facebookexternalhit",
+		"telegrambot", "slack", "slack-imgproxy",
+	} {
+		if strings.Contains(ua, c) {
+			return true
+		}
+	}
+	return false
+}
+
+func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	url := baseURL + "/" + id
+	fmt.Fprintf(w, `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta property="og:site_name" content="b1n">
+<meta property="og:title" content="b1n video">
+<meta property="og:type" content="video.other">
+<meta property="og:url" content="%s">
+<meta property="og:video" content="%s">
+<meta property="og:video:type" content="%s">
+<meta name="twitter:card" content="player">
+<meta http-equiv="refresh" content="0;url=%s">
+</head>
+<body></body>
+</html>`, url, url, contentType, url)
 }
