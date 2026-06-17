@@ -36,8 +36,8 @@ func main() {
 	// serve static assets (fonts, images, etc)
 	sub, _ := fs.Sub(static, "static")
 	fileServer := http.FileServer(http.FS(sub))
-	mux.Handle("GET /fonts/", http.StripPrefix("/fonts", fileServer))
-	mux.Handle("GET /assets/", http.StripPrefix("/assets", fileServer))
+	mux.Handle("GET /fonts/", fileServer)
+	mux.Handle("GET /assets/", fileServer)
 	mux.Handle("GET /style.css", fileServer)
 	mux.Handle("GET /script.js", fileServer)
 	
