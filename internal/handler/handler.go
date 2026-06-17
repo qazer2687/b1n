@@ -212,12 +212,9 @@ func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType
 <meta property="og:video" content="%s">
 <meta property="og:video:secure_url" content="%s">
 <meta property="og:video:type" content="%s">
-<meta property="og:video:width" content="640">
-<meta property="og:video:height" content="360">
 <meta name="twitter:card" content="player">
-<meta name="twitter:player" content="%s">
 <meta http-equiv="refresh" content="0;url=%s">
 </head>
 <body></body>
-</html>`, url, videoURL, videoURL, contentType, videoURL, url)
+</html>`, url, videoURL, videoURL, contentType, url)
 }
