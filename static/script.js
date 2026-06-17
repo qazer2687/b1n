@@ -1,17 +1,20 @@
+// dom element references
 let b = document.getElementById("bar"),
     st = document.getElementById("st"),
     dn = document.getElementById("dn"),
     l = document.getElementById("lnk"),
     dr = document.getElementById("drop"),
     bk = document.getElementById("back"),
-    la = 0,
-    tm = 0,
-    done = false;
+    la = 0,  // last uploaded bytes for speed calc
+    tm = 0,  // timestamp of last progress event
+    done = false;  // prevent duplicate uploads
 
+// upload a file and show progress
 function up(f) {
     if (!f || done) return;
     let x = new XMLHttpRequest();
     x.open("POST", "/upload");
+    // update progress bar and speed on each chunk
     x.upload.onprogress = (e) => {
         if (e.lengthComputable) {
             b.style.width = (e.loaded / e.total) * 100 + "%";
@@ -20,6 +23,7 @@ function up(f) {
                 sp = la ? (e.loaded - la) / ((n - tm) / 1000) : 0;
             la = e.loaded;
             tm = n;
+            // format bytes into human-readable string
             let F = (b) =>
                 b >= 1e9
                     ? (b / 1e9).toFixed(1) + "GB"
@@ -31,6 +35,7 @@ function up(f) {
             st.textContent = F(e.loaded) + " / " + F(e.total) + " - " + F(sp) + "/s";
         }
     };
+    // upload complete — show the result link and back button
     x.onload = () => {
         done = true;
         dr.style.display = "none";
@@ -40,10 +45,12 @@ function up(f) {
         dn.style.display = "block";
         bk.style.display = "block";
     };
+    // hide the drop zone and start the upload
     dr.style.display = "none";
     x.send(f);
 }
 
+// back button resets to the initial upload state
 bk.addEventListener("click", (e) => {
     e.stopPropagation();
     done = false;
@@ -55,12 +62,15 @@ bk.addEventListener("click", (e) => {
     la = 0;
     tm = 0;
 });
+// prevent the browser from opening dragged files
 document.addEventListener("dragover", (e) => e.preventDefault());
+// handle dropped files
 document.addEventListener("drop", (e) => {
     e.preventDefault();
     if (done) return;
     up(e.dataTransfer.files[0]);
 });
+// clicking anywhere opens a file picker
 document.addEventListener("click", () => {
     if (done) return;
     let i = document.createElement("input");

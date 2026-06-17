@@ -6,13 +6,13 @@ import (
 )
 
 type Config struct {
-	Port         string
-	StoragePath  string
-	MaxFileSize  int64
-	MaxTotalSize int64
-	BaseURL      string
-	MaxUploads   int
-	UploadRate   int64
+	Port         string // listen address
+	StoragePath  string // directory for uploaded files
+	MaxFileSize  int64  // per-file upload limit
+	MaxTotalSize int64  // total storage cap
+	BaseURL      string // public-facing url for generated links
+	MaxUploads   int    // max concurrent uploads
+	UploadRate   int64  // bytes per second upload throttle
 }
 
 func Load() Config {
