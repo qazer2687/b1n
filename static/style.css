@@ -56,11 +56,12 @@ body {
     position: fixed;
     bottom: 12px;
     right: 12px;
-    color: #fff;
+    background: #fff;
+    padding: 4px;
+    line-height: 0;
 }
 #logo img {
     display: block;
-    height: 30px;
+    height: 32px;
     width: auto;
-    filter: invert(1);
 }
