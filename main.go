@@ -24,7 +24,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", h.HandleRoot)
-	// serve static assets (fonts, etc)
+	// serve static assets (fonts, images, etc)
 	mux.HandleFunc("GET /fonts/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := static.ReadFile("static" + r.URL.Path)
 		if err != nil {
@@ -34,6 +34,18 @@ func main() {
 		w.Header().Set("Content-Type", "font/woff2")
 		w.Write(data)
 	})
+	mux.HandleFunc("GET /assets/", func(w http.ResponseWriter, r *http.Request) {
+		data, err := static.ReadFile("static" + r.URL.Path)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		if len(r.URL.Path) > 4 && r.URL.Path[len(r.URL.Path)-4:] == ".svg" {
+			w.Header().Set("Content-Type", "image/svg+xml")
+		}
+		w.Write(data)
+	})
+	
 	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
 	    data, err := static.ReadFile("static/style.css")
 	    if err != nil {
@@ -52,6 +64,7 @@ func main() {
 	    w.Header().Set("Content-Type", "application/javascript")
 	    w.Write(data)
 	})
+	
 	// take a file to upload to b1n
 	mux.HandleFunc("POST /upload", h.HandleUpload)
 	// take an id to fetch a file from the server

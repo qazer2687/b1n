@@ -52,3 +52,15 @@ body {
 #dn a {
     color: #fff;
 }
+#logo {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    color: #fff;
+}
+#logo img {
+    display: block;
+    height: 30px;
+    width: auto;
+    filter: invert(1);
+}
