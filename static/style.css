@@ -14,6 +14,12 @@ body {
     height: 100vh;
     overflow: hidden;
 }
+#drop img {
+    display: block;
+    height: 40px;
+    width: auto;
+    background: #fff;
+}
 #drop {
     position: fixed;
     top: 50%;
@@ -51,4 +57,31 @@ body {
 }
 #dn a {
     color: #fff;
+}
+#back {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    display: none;
+    cursor: pointer;
+    z-index: 10;
+}
+#back img {
+    display: block;
+    height: 40px;
+    width: auto;
+    background: #fff;
+}
+#logo {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    background: #fff;
+    padding: 4px;
+    line-height: 0;
+}
+#logo img {
+    display: block;
+    height: 32px;
+    width: auto;
 }

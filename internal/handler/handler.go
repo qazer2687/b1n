@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -35,6 +36,7 @@ type throttledWriter struct {
 	rate int64
 }
 
+// limit write speed to the configured rate
 func (t *throttledWriter) Write(p []byte) (int, error) {
 	if t.rate > 0 {
 		time.Sleep(time.Duration(len(p)) * time.Second / time.Duration(t.rate))
@@ -58,6 +60,7 @@ func (h *Handler) HandleUpload(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
+	// block if too many concurrent uploads
 	select {
 	case h.uploadSem <- struct{}{}:
 		defer func() { <-h.uploadSem }()
@@ -65,12 +68,15 @@ func (h *Handler) HandleUpload(
 		http.Error(w, "too many uploads", http.StatusServiceUnavailable)
 		return
 	}
+	// reject bodies larger than the max file size
 	r.Body = http.MaxBytesReader(w, r.Body, h.cfg.MaxFileSize)
+	// write to a temp file prefixed with underscore
 	temp, err := os.CreateTemp(h.cfg.StoragePath, "_*")
 	if err != nil {
 		http.Error(w, "server error", http.StatusInternalServerError)
 		return
 	}
+	// hash the file contents while writing them
 	hash := sha256.New()
 	_, err = io.Copy(&throttledWriter{temp, h.cfg.UploadRate}, io.TeeReader(r.Body, hash))
 	temp.Close()
@@ -79,6 +85,7 @@ func (h *Handler) HandleUpload(
 		http.Error(w, "body too large", http.StatusRequestEntityTooLarge)
 		return
 	}
+	// derive the file id from its sha256 hash
 	id := hex.EncodeToString(hash.Sum(nil))
 	// check total storage before committing the file
 	if h.cfg.MaxTotalSize > 0 {
@@ -126,12 +133,12 @@ func (h *Handler) HandleDownload(
 	r *http.Request,
 ) {
 	id := r.PathValue("id")
-
 	// block path traversal by requiring the id to be 64 characters to match the hash
 	if len(id) != 64 {
         http.NotFound(w, r)
         return
     }
+    // only allow lowercase hex characters
     for _, c := range id {
         if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
             http.NotFound(w, r)
@@ -158,5 +165,54 @@ func (h *Handler) HandleDownload(
 		http.NotFound(w, r)
 		return
 	}
+	// serve rich embed to social media crawlers
+	if isCrawler(r.UserAgent()) {
+		buf := make([]byte, 512)
+		n, _ := file.Read(buf)
+		ct := http.DetectContentType(buf[:n])
+		if strings.HasPrefix(ct, "video/") {
+			serveEmbed(w, r, id, h.cfg.BaseURL, ct)
+			return
+		}
+	}
+
 	http.ServeContent(w, r, id, stat.ModTime(), file)
+}
+
+// check if the user agent is a known social media crawler
+func isCrawler(ua string) bool {
+	if ua == "" {
+		return false
+	}
+	ua = strings.ToLower(ua)
+	for _, c := range []string{
+		"discordbot", "twitterbot", "facebookexternalhit",
+		"telegrambot", "slack", "slack-imgproxy",
+	} {
+		if strings.Contains(ua, c) {
+			return true
+		}
+	}
+	return false
+}
+
+// render og meta tags and twitter card for rich link previews
+func serveEmbed(w http.ResponseWriter, _ *http.Request, id, baseURL, contentType string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	url := baseURL + "/" + id
+	fmt.Fprintf(w, `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta property="og:site_name" content="b1n">
+<meta property="og:title" content="video @ b1n">
+<meta property="og:type" content="video.other">
+<meta property="og:url" content="%s">
+<meta property="og:video" content="%s">
+<meta property="og:video:type" content="%s">
+<meta name="twitter:card" content="player">
+<meta http-equiv="refresh" content="0;url=%s">
+</head>
+<body></body>
+</html>`, url, url, contentType, url)
 }

@@ -3,6 +3,7 @@ package main
 import (
     "embed"
     "fmt"
+    "io/fs"
     "net/http"
     "os"
 
@@ -22,41 +23,23 @@ func main() {
 	// make sure storage path exists
 	os.MkdirAll(cfg.StoragePath, 0755)
 
+	// set up the request router
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", h.HandleRoot)
-	// serve static assets (fonts, etc)
-	mux.HandleFunc("GET /fonts/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := static.ReadFile("static" + r.URL.Path)
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "font/woff2")
-		w.Write(data)
-	})
-	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
-	    data, err := static.ReadFile("static/style.css")
-	    if err != nil {
-	        http.NotFound(w, r)
-	        return
-	    }
-	    w.Header().Set("Content-Type", "text/css")
-	    w.Write(data)
-	})
-	mux.HandleFunc("GET /script.js", func(w http.ResponseWriter, r *http.Request) {
-	    data, err := static.ReadFile("static/script.js")
-	    if err != nil {
-	        http.NotFound(w, r)
-	        return
-	    }
-	    w.Header().Set("Content-Type", "application/javascript")
-	    w.Write(data)
-	})
+	// serve static assets (fonts, images, etc)
+	sub, _ := fs.Sub(static, "static")
+	fileServer := http.FileServer(http.FS(sub))
+	mux.Handle("GET /fonts/", http.StripPrefix("/fonts", fileServer))
+	mux.Handle("GET /assets/", http.StripPrefix("/assets", fileServer))
+	mux.Handle("GET /style.css", fileServer)
+	mux.Handle("GET /script.js", fileServer)
+	
 	// take a file to upload to b1n
 	mux.HandleFunc("POST /upload", h.HandleUpload)
 	// take an id to fetch a file from the server
 	mux.HandleFunc("GET /{id}", h.HandleDownload)
 
+	// start the http server
 	fmt.Printf("[INFO] server starting on %s\n", cfg.Port)
 	if err := http.ListenAndServe(cfg.Port, mux); err != nil {
 		fmt.Printf("[ERROR] server failed to start: %s\n", err)
