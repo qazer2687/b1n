@@ -3,6 +3,7 @@ package main
 import (
     "embed"
     "fmt"
+    "io/fs"
     "net/http"
     "os"
 
@@ -26,47 +27,12 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", h.HandleRoot)
 	// serve static assets (fonts, images, etc)
-	mux.HandleFunc("GET /fonts/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := static.ReadFile("static" + r.URL.Path)
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "font/woff2")
-		w.Write(data)
-	})
-	mux.HandleFunc("GET /assets/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := static.ReadFile("static" + r.URL.Path)
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		if len(r.URL.Path) > 4 && r.URL.Path[len(r.URL.Path)-4:] == ".svg" {
-			w.Header().Set("Content-Type", "image/svg+xml")
-		}
-		w.Write(data)
-	})
-	
-	// serve the stylesheet
-	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
-	    data, err := static.ReadFile("static/style.css")
-	    if err != nil {
-	        http.NotFound(w, r)
-	        return
-	    }
-	    w.Header().Set("Content-Type", "text/css")
-	    w.Write(data)
-	})
-	// serve the client-side script
-	mux.HandleFunc("GET /script.js", func(w http.ResponseWriter, r *http.Request) {
-	    data, err := static.ReadFile("static/script.js")
-	    if err != nil {
-	        http.NotFound(w, r)
-	        return
-	    }
-	    w.Header().Set("Content-Type", "application/javascript")
-	    w.Write(data)
-	})
+	sub, _ := fs.Sub(static, "static")
+	fileServer := http.FileServer(http.FS(sub))
+	mux.Handle("GET /fonts/", http.StripPrefix("/fonts", fileServer))
+	mux.Handle("GET /assets/", http.StripPrefix("/assets", fileServer))
+	mux.Handle("GET /style.css", fileServer)
+	mux.Handle("GET /script.js", fileServer)
 	
 	// take a file to upload to b1n
 	mux.HandleFunc("POST /upload", h.HandleUpload)
