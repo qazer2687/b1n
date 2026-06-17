@@ -126,6 +126,19 @@ func (h *Handler) HandleDownload(
 	r *http.Request,
 ) {
 	id := r.PathValue("id")
+
+	// block path traversal by requiring the id to be 64 characters to match the hash
+	if len(id) != 64 {
+        http.NotFound(w, r)
+        return
+    }
+    for _, c := range id {
+        if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+            http.NotFound(w, r)
+            return
+        }
+    }
+    
 	// ignore temp files which are all prefixed with an underscore
 	if len(id) > 0 && id[0] == '_' {
 		http.NotFound(w, r)
