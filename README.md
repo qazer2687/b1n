@@ -1,4 +1,7 @@
-## b1n
+<p align="left">
+  <img src="./assets/b1n.svg" width="60" alt="logo">
+</p>
+<h2 align="left">b1n</h2>   
 a minimal file drop service
 
 ---
