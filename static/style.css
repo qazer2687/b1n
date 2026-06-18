@@ -16,9 +16,8 @@ body {
 }
 #drop img {
     display: block;
-    height: 40px;
+    height: 60px;
     width: auto;
-    background: #fff;
 }
 #drop {
     position: fixed;
